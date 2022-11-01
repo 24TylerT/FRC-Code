@@ -9,6 +9,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import com.ctre.phoenix.CANCoder;
+
 public class Robot extends TimedRobot {
   // Declare objects below here
   TalonSRX motor1;
