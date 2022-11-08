@@ -1,0 +1,7 @@
+PID is a way to control the output of your robots motors using information taken through
+sensors and encoders.
+P is proportional. It is the main controller thing of PID.
+I is integral. It is the sum of the error that the sensors detect. The integral is then
+used to increase or decrease the motor output if the motor is struggling to reach its destination
+D is the derivative. It helps the motors decrease when reaching its destination so that the 
+robot does not overshoot.
