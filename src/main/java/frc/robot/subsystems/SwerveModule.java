@@ -7,9 +7,15 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import com.ctre.phoenix.CANCoder;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.*;
+
+import frc.robot.Constants;
+import frc.robot.Constants.SwerveConstants;
 
 
 public class SwerveModule {
@@ -36,10 +42,10 @@ public class SwerveModule {
         mRotor.setInverted(TalonFXInvertType.Clockwise);
         mThrottle.setInverted(throttleReversed);
 
-        mRotor.enableVoltageCompSaturation(true);
-        mThrottle.enableVoltageCompSaturation(true);
-        mRotor.configVoltageCompSaturation(Constants.kVoltageCompensation);
-        mThrottle.configVoltageCompSaturation(Constants.kVoltageCompensation);
+        mRotor.enableVoltageCompensation(true);
+        mThrottle.enableVoltageCompensation(true);
+        mRotor.configVoltageCompSaturation(SwerveConstants.kVoltageCompensation);
+        mThrottle.configVoltageCompSaturation(SwerveConstants.kVoltageCompensation);
 
         mRotor.setNeutralMode(NeutralMode.Brake);
         mThrottle.setNeutralMode(NeutralMode.Brake);
