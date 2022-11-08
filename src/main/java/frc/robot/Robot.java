@@ -8,9 +8,15 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.*;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import com.ctre.phoenix.CANCoder;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.*;
+
+import frc.robot.Constants;
+import frc.robot.Constants.SwerveConstants;
 
 public class Robot extends TimedRobot {
   // Declare objects below here
@@ -37,7 +43,7 @@ public class Robot extends TimedRobot {
     //initialize variables
     speedEx = 0;
     speedClim = 0;
-    targetPosEx = 0;
+    targetPosEx = 2000;
     moveBool1 = false;
     moveBool2 = false;
     percentTrue = 1;
@@ -47,26 +53,30 @@ public class Robot extends TimedRobot {
     //don't know what SCurve means but just set to 0 for now
     motor1.configMotionSCurveStrength(0);
     //cruisevelo is top speed, accel is accelelration per sec
-    motor1.configMotionCruiseVelocity(800);
-		motor1.configMotionAcceleration(800);
+    //both should be around the same for a 1 second acceleration to maximum velocity
+    motor1.configMotionCruiseVelocity(1000);
+		motor1.configMotionAcceleration(1000);
     //kF is main thing, 1024 units divided by target peak velocity
-    //kF is like a speed multiplier for motion acceleration
+    //kF is like a speed multiplier/divider/factor for motion acceleration
     //works best when kF is 1024/peak velo for that reason
-    motor1.config_kF(0, 1.28);
+    motor1.config_kF(0, 1.024);
     //proportional whatever
     //helps motion magic reach the exact target position when
     //detecting movement mistakes
     //start from 1, increase until closed loop error starts 
     //oscillating, then dial back slightly
-    motor1.config_kP(0, 2.1);
+    motor1.config_kP(0, 6);
     //BE CAREFUL WITH kI! can increase too fast and make your robot
     //destroy itself since kI can snowball and compensate motor speed to 100%
+    //start with kI set to 0.001
     motor1.config_kI(0, 0.001);
     //baytun sayd ignore kD!!!!
-    motor1.config_kD(0, 20);
+    //set to 20 by default for now
+    motor1.config_kD(0, 60);
+    //prevents extreme buildup for integrals
     motor1.config_IntegralZone(0, 50);
     //zeroes sensor value
-    motor1.setSelectedSensorPosition(0);
+    //motor1.setSelectedSensorPosition(0);
   }
 
   /**
@@ -112,14 +122,17 @@ public class Robot extends TimedRobot {
 
     //triangle is Y
     //pressing y switches mode from percent output to motionmagic
-    targetPosEx = 2000;
-    speedEx = joy.getLeftY()/5;
+    //control motionmagic with left stick as well
+    speedEx = -joy.getLeftY()/5;
+    
     if(joy.getTriangleButtonPressed()){
       percentTrue = percentTrue*-1;
-      motor1.set(ControlMode.MotionMagic, targetPosEx);
     }
-    if(percentTrue = 1){
-      motor1.set(ControlMode.PercentOutput, speedEx)
+    if(percentTrue == 1){
+      motor1.set(ControlMode.PercentOutput, speedEx);
+    } else {
+      //targetPosEx = targetPosEx - joy.getLeftY()*70;
+      motor1.set(ControlMode.MotionMagic, targetPosEx);
     }
 
     //cross is B
@@ -144,12 +157,13 @@ public class Robot extends TimedRobot {
     motor1.getFaults(faults);
 
     //circle is X
-    //prints useful info to console when O is pressed
+    //prints useful info to console when X is pressed
     if (joy.getCircleButton()) {
       System.out.println("Out of Phase: "+faults.SensorOutOfPhase);
       System.out.println("Sensor Position: " + motor1.getSelectedSensorPosition());
       System.out.println("Sensor Velocity: " + motor1.getSelectedSensorVelocity());
       System.out.println("Out %: " + motor1.getMotorOutputPercent());
+      System.out.println("Target Position: "+targetPosEx);
     }
   }
 }
