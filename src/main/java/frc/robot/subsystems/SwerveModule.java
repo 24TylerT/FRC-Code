@@ -20,8 +20,8 @@ import frc.robot.Constants.SwerveConstants;
 
 public class SwerveModule {
     //useful variables
-    WPI_TalonFX mRotor, mThrottle;
-    CANCoder mRotorEncoder;
+    private WPI_TalonFX mRotor, mThrottle;
+    private CANCoder mRotorEncoder;
 
     //swervemodule constructor
     public SwerveModule(int rotorID, int throttleID, int CANCoderID, boolean throttleReversed, double rotorOffsetAngle){
