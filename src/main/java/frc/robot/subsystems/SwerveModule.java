@@ -51,5 +51,8 @@ public class SwerveModule {
         mThrottle.setNeutralMode(NeutralMode.Brake);
     }
 
+    public void setSpeed(double speed){
+        mThrottle.set(ControlMode.PercentOutput, speed);
+    }
 
 }
