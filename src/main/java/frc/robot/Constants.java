@@ -19,6 +19,10 @@ public class Constants {
     //constants to use
     public class SwerveConstants{
         public final static double kVoltageCompensation = 12.0;
+        public final static double kP = 1.0;
+        public final static double kI = 0.0;
+        public final static double kD = 10.0;
+
 
     }
 }

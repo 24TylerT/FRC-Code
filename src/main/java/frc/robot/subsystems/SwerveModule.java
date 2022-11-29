@@ -2,6 +2,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.math.controller.PIDController;
 
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -22,6 +23,7 @@ public class SwerveModule {
     //useful variables
     private WPI_TalonFX mRotor, mThrottle;
     private CANCoder mRotorEncoder;
+    private PIDController mPIDController;
 
     //swervemodule constructor
     public SwerveModule(int rotorID, int throttleID, int CANCoderID, boolean throttleReversed, double rotorOffsetAngle){
@@ -29,6 +31,8 @@ public class SwerveModule {
         mThrottle = new WPI_TalonFX(throttleID);
 
         mRotorEncoder = new CANCoder(CANCoderID);
+
+        mPIDController = new PIDController(SwerveConstants.kP, SwerveConstants.kI, SwerveConstants.kD);
 
         mRotor.configFactoryDefault();
         mThrottle.configFactoryDefault();
@@ -49,10 +53,35 @@ public class SwerveModule {
 
         mRotor.setNeutralMode(NeutralMode.Brake);
         mThrottle.setNeutralMode(NeutralMode.Brake);
+
+        mPIDController.enableContinuousInput(-180, 180);
     }
 
-    public void setSpeed(double speed){
-        mThrottle.set(ControlMode.PercentOutput, speed);
+    
+
+    public void jogRotor(double percent){
+        mRotor.set(ControlMode.PercentOutput, percent);
+    }
+    public void jogThrottle(double percent){
+        mThrottle.set(ControlMode.PercentOutput, percent);
+    }
+    public void setState(SwerveModuleState state){
+        SwerveModuleState newState = SwerveModuleState.optimize(state, mRotorEncoder.getSelectedSensorPosition());
+        double rotorOutput = mPIDController.calculate(
+            mRotorEncoder.getAbsolutePosition(),
+            newState.angle.getDegrees()
+        );
+        mRotor.set(rotorOutput);
+        mThrottle.set(newState.speedMetersPerSecond);
+    }
+
+    public void getState(){
+        SwerveModuleState currentState = new SwerveModuleState(
+            //not sure if this is right - 1st param should be in meters per second but
+            //mThrottle.getSelectedSensorVelocity might be some other unit of measure
+            mThrottle.getSelectedSensorVelocity(),
+            mRotorEncoder.getSelectedSensorPosition()
+        );
     }
 
 }
