@@ -75,13 +75,14 @@ public class SwerveModule {
         mThrottle.set(newState.speedMetersPerSecond);
     }
 
-    public void getState(){
+    public SwerveModuleState getState(){
         SwerveModuleState currentState = new SwerveModuleState(
             //not sure if this is right - 1st param should be in meters per second but
             //mThrottle.getSelectedSensorVelocity might be some other unit of measure
             mThrottle.getSelectedSensorVelocity(),
             mRotorEncoder.getSelectedSensorPosition()
         );
+        return currentState;
     }
 
 }
