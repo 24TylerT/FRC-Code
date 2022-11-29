@@ -23,7 +23,7 @@ public class ModuleTestBench extends TimedRobot {
   TalonFX steering;
   TalonFX throttle;
   PS4Controller joy;
-  double speedEx, speedClim, targetPosEx, percentTrue;
+  double speedEx, speedClim, targetPosEx, percentTrue, targetPosTh;
   boolean moveBool1, moveBool2;
   Faults faults;
   
@@ -42,6 +42,7 @@ public class ModuleTestBench extends TimedRobot {
     speedEx = 0;
     speedClim = 0;
     targetPosEx = 2000;
+    targetPosTh = 2000;
     moveBool1 = false;
     moveBool2 = false;
     percentTrue = 1;
@@ -52,29 +53,39 @@ public class ModuleTestBench extends TimedRobot {
     steering.configMotionSCurveStrength(0);
     //cruisevelo is top speed, accel is accelelration per sec
     //both should be around the same for a 1 second acceleration to maximum velocity
-    steering.configMotionCruiseVelocity(4000);
-		steering.configMotionAcceleration(4000);
+    steering.configMotionCruiseVelocity(2000);
+		steering.configMotionAcceleration(2000);
     //kF is main thing, 1024 units divided by target peak velocity
     //kF is like a speed multiplier/divider/factor for motion acceleration
     //works best when kF is 1024/peak velo for that reason
-    steering.config_kF(0, 0.256);
-    //proportional whatever
+    steering.config_kF(0, 0.512);
+    //proportional whatever 
     //helps motion magic reach the exact target position when
     //detecting movement mistakes
     //start from 1, increase until closed loop error starts 
     //oscillating, then dial back slightly
-    steering.config_kP(0, 1);
+    steering.config_kP(0, 0.55);
     //BE CAREFUL WITH kI! can increase too fast and make your robot
     //destroy itself since kI can snowball and compensate motor speed to 100%
     //start with kI set to 0.001
-    steering.config_kI(0, 0);
+    steering.config_kI(0, 0.007);
     //baytun sayd ignore kD!!!!
     //set to 20 by default for now
-    steering.config_kD(0, 0);
+    steering.config_kD(0, 5.5);
     //prevents extreme buildup for integrals
     steering.config_IntegralZone(0, 50);
     //zeroes sensor value
     //steering.setSelectedSensorPosition(0);
+
+
+    throttle.configMotionSCurveStrength(0);
+    throttle.configMotionAcceleration(4000);
+    throttle.configMotionCruiseVelocity(4000);
+    throttle.config_kF(0, 0.256);
+    throttle.config_kP(0, 0.55);
+    throttle.config_kI(0, 0);
+    throttle.config_kD(0, 5.5);
+    throttle.config_IntegralZone(0, 50);
   }
 
   /**
@@ -149,6 +160,11 @@ public class ModuleTestBench extends TimedRobot {
       steering.setSelectedSensorPosition(0);
     }
 
+    //l1 button is LB
+    if(joy.getL1Button()){
+      throttle.set(ControlMode.MotionMagic, targetPosTh);;
+    }
+
     //gets the problems with the sensors or something idk
     steering.getFaults(faults);
 
@@ -156,10 +172,14 @@ public class ModuleTestBench extends TimedRobot {
     //prints useful info to console when X is pressed
     if (joy.getCircleButton()) {
       System.out.println("Out of Phase: "+faults.SensorOutOfPhase);
-      System.out.println("Sensor Position: " + steering.getSelectedSensorPosition());
-      System.out.println("Sensor Velocity: " + steering.getSelectedSensorVelocity());
-      System.out.println("Out %: " + steering.getMotorOutputPercent());
-      System.out.println("Target Position: "+targetPosEx);
+      System.out.println("St Sensor Position: " + steering.getSelectedSensorPosition());
+      System.out.println("St Sensor Velocity: " + steering.getSelectedSensorVelocity());
+      System.out.println("St Out %: " + steering.getMotorOutputPercent());
+      System.out.println("St Target Position: "+targetPosEx);
+      System.out.println("Th Sensor Position: " + throttle.getSelectedSensorPosition());
+      System.out.println("Th Sensor Velocity: " + throttle.getSelectedSensorVelocity());
+      System.out.println("Th Out %: " + throttle.getMotorOutputPercent());
+      System.out.println("Th Target Position: "+targetPosTh);
     }
   }
 }
