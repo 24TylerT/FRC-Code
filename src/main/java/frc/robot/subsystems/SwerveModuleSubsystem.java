@@ -2,6 +2,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.math.controller.PIDController;
 
 import com.ctre.phoenix.motorcontrol.*;
@@ -17,12 +18,14 @@ import com.ctre.phoenix.sensors.*;
 
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 
 public class SwerveModuleSubsystem extends SubsystemBase {
     private SwerveModule mModule;
 
-    public SwerveModuleSubsystmem(){
+    public SwerveModuleSubsystem(){
         mModule = new SwerveModule(
             SwerveConstants.kRotorID,
             SwerveConstants.kThrottleID,

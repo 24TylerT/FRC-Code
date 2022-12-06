@@ -17,6 +17,7 @@ import com.ctre.phoenix.sensors.*;
 
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 
 public class SwerveModule {
@@ -66,9 +67,9 @@ public class SwerveModule {
         mThrottle.set(ControlMode.PercentOutput, percent);
     }
     public void setState(SwerveModuleState state){
-        SwerveModuleState newState = SwerveModuleState.optimize(state, mRotorEncoder.getSelectedSensorPosition());
+        SwerveModuleState newState = SwerveModuleState.optimize(state, mRotorEncoder.getPosition());
         double rotorOutput = mPIDController.calculate(
-            mRotorEncoder.getAbsolutePosition(),
+            mRotorEncoder.getPosition(),
             newState.angle.getDegrees()
         );
         mRotor.set(rotorOutput);

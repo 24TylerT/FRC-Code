@@ -22,7 +22,11 @@ public class Constants {
         public final static double kP = 1.0;
         public final static double kI = 0.0;
         public final static double kD = 10.0;
-
+        public final static int kRotorID = 0;
+        public final static int kRotorEncoderID = 0;
+        public final static int kThrottleID = 0;
+        
 
     }
 }
+

@@ -3,6 +3,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -22,10 +24,13 @@ public class ModuleTestBench extends TimedRobot {
   // Declare objects below here
   TalonFX steering;
   TalonFX throttle;
+  CANCoder can;
   PS4Controller joy;
   double speedEx, speedClim, targetPosEx, percentTrue, targetPosTh;
   boolean moveBool1, moveBool2;
   Faults faults;
+  PIDController pid;
+  SwerveModuleState targetState;
   
 
   /**
@@ -37,6 +42,7 @@ public class ModuleTestBench extends TimedRobot {
     //initialize physical objects
     steering = new TalonFX(1);
     throttle = new TalonFX(0);
+    can = new CANCoder(0);
     joy = new PS4Controller(0);
     //initialize variables
     speedEx = 0;
@@ -48,6 +54,8 @@ public class ModuleTestBench extends TimedRobot {
     percentTrue = 1;
     faults = new Faults();
 
+    pid = new PIDController(0.55, 0.007, 5.5);
+    targetState = new SwerveModuleState(0.1, 0);
     //motor config for MotionMagic
     //don't know what SCurve means but just set to 0 for now
     steering.configMotionSCurveStrength(0);
@@ -83,9 +91,11 @@ public class ModuleTestBench extends TimedRobot {
     throttle.configMotionCruiseVelocity(4000);
     throttle.config_kF(0, 0.256);
     throttle.config_kP(0, 0.55);
-    throttle.config_kI(0, 0);
+    throttle.config_kI(0, 0.007);
     throttle.config_kD(0, 5.5);
     throttle.config_IntegralZone(0, 50);
+
+    pid.enableContinuousInput(-180, 180);
   }
 
   /**
@@ -162,7 +172,13 @@ public class ModuleTestBench extends TimedRobot {
 
     //l1 button is LB
     if(joy.getL1Button()){
-      throttle.set(ControlMode.MotionMagic, targetPosTh);;
+      SwerveModuleState newState = SwerveModuleState.optimize(targetState, can.getPosition());
+        double rotorOutput = pid.calculate(
+            can.getPosition(),
+            newState.angle.getDegrees()
+        );
+        steering.set(ControlMode.PercentOutput, rotorOutput);
+        throttle.set(ControlMode.PercentOutput, newState.speedMetersPerSecond);
     }
 
     //gets the problems with the sensors or something idk
