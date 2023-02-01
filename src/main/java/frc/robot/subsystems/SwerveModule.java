@@ -3,6 +3,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -67,7 +68,7 @@ public class SwerveModule {
         mThrottle.set(ControlMode.PercentOutput, percent);
     }
     public void setState(SwerveModuleState state){
-        SwerveModuleState newState = SwerveModuleState.optimize(state, mRotorEncoder.getPosition());
+        SwerveModuleState newState = SwerveModuleState.optimize(state, new Rotation2d(mRotorEncoder.getPosition()*(3.14159/180)));
         double rotorOutput = mPIDController.calculate(
             mRotorEncoder.getPosition(),
             newState.angle.getDegrees()
@@ -81,7 +82,7 @@ public class SwerveModule {
             //not sure if this is right - 1st param should be in meters per second but
             //mThrottle.getSelectedSensorVelocity might be some other unit of measure
             mThrottle.getSelectedSensorVelocity(),
-            mRotorEncoder.getSelectedSensorPosition()
+            new Rotation2d(mRotorEncoder.getPosition()*(3.14159/180))
         );
         return currentState;
     }

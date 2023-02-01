@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -55,7 +56,7 @@ public class ModuleTestBench extends TimedRobot {
     faults = new Faults();
 
     pid = new PIDController(0.55, 0.007, 5.5);
-    targetState = new SwerveModuleState(0.1, 0);
+    targetState = new SwerveModuleState(0.1, new Rotation2d(0));
     //motor config for MotionMagic
     //don't know what SCurve means but just set to 0 for now
     steering.configMotionSCurveStrength(0);
@@ -172,13 +173,16 @@ public class ModuleTestBench extends TimedRobot {
 
     //l1 button is LB
     if(joy.getL1Button()){
-      SwerveModuleState newState = SwerveModuleState.optimize(targetState, can.getPosition());
+      Rotation2d rot = new Rotation2d();
+      SwerveModuleState newState = SwerveModuleState.optimize(targetState, new Rotation2d(can.getPosition()*(3.14159/180)));
         double rotorOutput = pid.calculate(
             can.getPosition(),
             newState.angle.getDegrees()
         );
-        steering.set(ControlMode.PercentOutput, rotorOutput);
-        throttle.set(ControlMode.PercentOutput, newState.speedMetersPerSecond);
+        //steering.set(ControlMode.PercentOutput, rotorOutput);
+        //throttle.set(ControlMode.PercentOutput, newState.speedMetersPerSecond);
+        System.out.println(can.getPosition());
+        System.out.println(newState.angle.getDegrees());
     }
 
     //gets the problems with the sensors or something idk
